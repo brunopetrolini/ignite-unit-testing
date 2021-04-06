@@ -3,6 +3,7 @@ import { CreateUserUseCase } from "../../../users/useCases/createUser/CreateUser
 import { ICreateUserDTO } from "../../../users/useCases/createUser/ICreateUserDTO";
 import { InMemoryStatementsRepository } from "../../repositories/in-memory/InMemoryStatementsRepository";
 import { CreateStatementUseCase } from "../createStatement/CreateStatementUseCase";
+import { GetBalanceError } from "./GetBalanceError";
 import { GetBalanceUseCase } from "./GetBalanceUseCase";
 
 describe("Get Balance", () => {
@@ -124,4 +125,11 @@ describe("Get Balance", () => {
 
     expect(balance).toBe(amountTotal)
   });
+
+
+  it("Should no be able to get balance if it user not exists", () => {
+    expect(async () =>
+      await getBalanceUseCase.execute({user_id: "not exists"})
+    ).rejects.toBeInstanceOf(GetBalanceError)
+  })
 });
