@@ -5,6 +5,7 @@ import { AuthenticateUserUseCase } from "./AuthenticateUserUseCase"
 import authConfig from '../../../../config/auth';
 import { CreateUserUseCase } from "../createUser/CreateUserUseCase";
 import { User } from "../../entities/User";
+import { AppError } from "../../../../shared/errors/AppError";
 
 describe("Authenticate User Use Case", () => {
   interface ITokenUser {
@@ -47,5 +48,19 @@ describe("Authenticate User Use Case", () => {
     expect(decodedToken.user).toHaveProperty("password");
     expect(decodedToken.user.name).toEqual(userData.name);
     expect(decodedToken.user.email).toEqual(userData.email);
+  });
+
+  it("Should not be able to init a session if password is incorrect", async () => {
+    await createUserUseCase.execute(userData);
+
+    await authenticateUserUseCase.execute({
+      email: userData.email,
+      password: userData.password
+    });
+
+    expect( async () => await authenticateUserUseCase.execute({
+      email: userData.email,
+      password: userData.password + "-incorrect"
+    })).rejects.toBeInstanceOf(AppError);
   });
 });
