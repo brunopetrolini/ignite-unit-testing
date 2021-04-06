@@ -1,0 +1,18 @@
+version: "3.7"
+
+services:
+  database:
+    image: postgres
+    container_name: database_finapi
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=fin_api
+    volumes:
+      - pgdata:/data/postgres
+    network_mode: host
+
+volumes:
+  pgdata:
+    driver: local
