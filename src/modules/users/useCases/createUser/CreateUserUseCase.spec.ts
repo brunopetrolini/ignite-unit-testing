@@ -1,3 +1,4 @@
+import { AppError } from "../../../../shared/errors/AppError";
 import { InMemoryUsersRepository } from "../../repositories/in-memory/InMemoryUsersRepository"
 import { CreateUserUseCase } from "./CreateUserUseCase"
 import { ICreateUserDTO } from "./ICreateUserDTO"
@@ -25,5 +26,14 @@ describe("Create User Use Case", () => {
     expect(user.name).toEqual(userData.name);
     expect(user.email).toEqual(userData.email);
     expect(user.password).not.toEqual(userData.password);
+  });
+
+
+  it("Should not be able to create a user if it exists", async () => {
+    await createUserUseCase.execute(userData);
+
+    expect( async () => {
+      await createUserUseCase.execute(userData)
+    }).rejects.toBeInstanceOf(AppError);
   });
 });
