@@ -2,6 +2,7 @@ import { InMemoryUsersRepository } from "../../../users/repositories/in-memory/I
 import { CreateUserUseCase } from "../../../users/useCases/createUser/CreateUserUseCase";
 import { ICreateUserDTO } from "../../../users/useCases/createUser/ICreateUserDTO";
 import { InMemoryStatementsRepository } from "../../repositories/in-memory/InMemoryStatementsRepository";
+import { CreateStatementError } from "./CreateStatementError";
 import { CreateStatementUseCase } from "./CreateStatementUseCase";
 
 describe("Create Statement", () => {
@@ -57,5 +58,11 @@ describe("Create Statement", () => {
     expect(statement.type).toEqual(OperationType.WITHDRAW);
     expect(statement.amount).toEqual(statementData.amount);
     expect(statement.description).toEqual(statementData.description);
-  })
+  });
+
+  it("Should not be able to create a statement if user not exists", async () => {
+    expect(async () => {
+      await createStatementUseCase.execute(statementData);
+    }).rejects.toBeInstanceOf(CreateStatementError.UserNotFound);
+  });
 });
