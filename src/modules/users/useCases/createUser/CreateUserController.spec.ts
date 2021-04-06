@@ -28,4 +28,10 @@ describe("Create user controller", () => {
 
     expect(response.status).toBe(201);
   });
+
+  it("Should not be able to create a user if it exists", async () => {
+    const response = await request(app).post("/api/v1/users").send(userData);
+
+    expect(response.status).toBe(400);
+  });
 });
