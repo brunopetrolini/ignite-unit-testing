@@ -68,4 +68,26 @@ describe("Create statement integration", () => {
     expect(response.body.amount).toEqual(500);
     expect(response.body.description).toEqual(statementData.description);
   });
+
+  it("Should not be able to create a statement it if user not exists", async () => {
+    await request(app).post("/api/v1/users").send(userData);
+
+    const { secret, expiresIn } = authConfig.jwt;
+
+    const token = jwt.sign({ user: userData }, secret, {
+      subject: uuid(),
+      expiresIn
+    });
+
+    const response = await request(app).post("/api/v1/statements/deposit")
+    .send({
+      amount: 0,
+      description: statementData.description
+    })
+    .set({
+      Authorization: `Bearer ${token}`,
+    });
+
+    expect(response.status).toBe(404)
+  });
 });
