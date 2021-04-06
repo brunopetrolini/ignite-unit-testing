@@ -48,4 +48,13 @@ describe("Show user profile controller", () => {
     expect(response.body.email).toEqual(userData.email);
     expect(response.body.password).not.toEqual(userData.password);
   });
+
+  it("Should not be able to get user information if it id is invalid", async () => {
+    const response = await request(app).get("/api/v1/profile")
+    .set({
+      Authorization: `Bearer -invalid-token`,
+    });
+
+    expect(response.status).toBe(401);
+  });
 });
