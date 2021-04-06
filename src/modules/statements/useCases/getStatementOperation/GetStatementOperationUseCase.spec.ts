@@ -73,9 +73,23 @@ describe("Get Statement Operation Use Case", () => {
       user_id: `${user.id}`
     });
 
-    await expect( async () => await getStatementOperationUseCase.execute({
+    expect( async () => await getStatementOperationUseCase.execute({
       user_id: `${user.id}-invalid`,
       statement_id: `${statement.id}`
     })).rejects.toBeInstanceOf(GetStatementOperationError.UserNotFound);
+  });
+
+  it("Should not be able to get one statement if it statement non-exists", async () => {
+    const user = await createUserUseCase.execute(userData);
+
+    const statement = await createStatementUseCase.execute({
+      ...statementData,
+      user_id: `${user.id}`
+    });
+
+    expect( async () => await getStatementOperationUseCase.execute({
+      user_id: `${user.id}`,
+      statement_id: `${statement.id}-invalid`
+    })).rejects.toBeInstanceOf(GetStatementOperationError.StatementNotFound);
   });
 })
