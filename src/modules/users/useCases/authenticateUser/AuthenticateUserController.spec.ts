@@ -53,4 +53,13 @@ describe("Authenticate user controller", () => {
     expect(decodedToken.user.name).toEqual(userData.name);
     expect(decodedToken.user.email).toEqual(userData.email);
   });
+
+  it("Should not be able to init a session if it password is incorrect", async () => {
+    const response = await request(app).post("/api/v1/users").send({
+      email: userData.email,
+      password: userData.password + "incorrect_password"
+    });
+
+    expect(response.status).toBe(400);
+  });
 });
