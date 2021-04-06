@@ -82,4 +82,38 @@ describe("Get statement operation", () => {
     expect(response.body.amount).toBe("500.00");
     expect(response.body.description).toBe(statementData.description);
   });
+
+  it("Should not be able to get one statement operation if it user not exists", async() => {
+    await request(app).post("/api/v1/users").send(userData);
+
+    const authenticate = await request(app).post("/api/v1/sessions").send({
+      email: userData.email,
+      password: userData.password
+    });
+
+    await request(app).post("/api/v1/statements/deposit")
+      .send({
+        amount: 900,
+        description: statementData.description
+      })
+      .set({
+        Authorization: `Bearer ${authenticate.body.token}`,
+      });
+
+    const responseWithdraw = await request(app).post("/api/v1/statements/withdraw")
+      .send({
+        amount: 500,
+        description: statementData.description
+      })
+      .set({
+        Authorization: `Bearer ${authenticate.body.token}`,
+      });
+
+    const response = await request(app).get(`/api/v1/statements/${responseWithdraw.body.id}`)
+      .set({
+        Authorization: `Bearer ${authenticate.body.token}-invalid`,
+      });
+
+    expect(response.status).toBe(401);
+  });
 });
