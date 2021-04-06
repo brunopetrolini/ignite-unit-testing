@@ -63,4 +63,11 @@ describe("Authenticate User Use Case", () => {
       password: userData.password + "-incorrect"
     })).rejects.toBeInstanceOf(AppError);
   });
+
+  it("should not be able to init a session if user not exists", () => {
+    expect( async () => await authenticateUserUseCase.execute({
+      email: userData.email,
+      password: userData.password
+    })).rejects.toBeInstanceOf(AppError);
+  });
 });
