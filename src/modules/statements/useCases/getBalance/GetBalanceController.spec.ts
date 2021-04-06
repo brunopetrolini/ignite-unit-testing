@@ -1,6 +1,9 @@
 import request from "supertest"
 import { Connection, createConnection } from 'typeorm';
+import jwt from "jsonwebtoken"
+import { v4 as uuid } from "uuid"
 
+import authConfig from '../../../../config/auth'
 import { app } from "../../../../app"
 import { ICreateUserDTO } from "../../../users/useCases/createUser/ICreateUserDTO";
 
@@ -75,5 +78,23 @@ describe("Get balance controller", () => {
 
     expect(response.body.statement).toHaveLength(2);
     expect(response.body.balance).toBe(400);
+  });
+
+  it("Should not be able to get balance if it user not exists", async () => {
+    await request(app).post("/api/v1/users").send(userData);
+
+    const { secret, expiresIn } = authConfig.jwt;
+
+    const token = jwt.sign({ user: userData }, secret, {
+      subject: uuid(),
+      expiresIn
+    });
+
+    const response = await request(app).get("/api/v1/statements/balance")
+      .set({
+        Authorization: `Bearer ${token}`,
+      });
+
+    expect(response.status).toBe(404);
   });
 });
