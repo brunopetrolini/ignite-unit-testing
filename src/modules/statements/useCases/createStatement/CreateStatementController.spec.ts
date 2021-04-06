@@ -90,4 +90,28 @@ describe("Create statement integration", () => {
 
     expect(response.status).toBe(404)
   });
+
+  it("Should be able to create a statement", async () => {
+    await request(app).post("/api/v1/users").send(userData);
+
+    const responseAuthenticate = await request(app).post("/api/v1/sessions").send({
+      email: userData.email,
+      password: userData.password
+    });
+
+    const response = await request(app).post("/api/v1/statements/withdraw")
+    .send({
+      amount: 400,
+      description: statementData.description
+    })
+    .set({
+      Authorization: `Bearer ${responseAuthenticate.body.token}`,
+    });
+
+    expect(response.body).toHaveProperty("id");
+    expect(response.body.user_id).toEqual(responseAuthenticate.body.user.id);
+    expect(response.body.type).toEqual(OperationType.WITHDRAW);
+    expect(response.body.amount).toEqual(400);
+    expect(response.body.description).toEqual(statementData.description);
+  });
 });
