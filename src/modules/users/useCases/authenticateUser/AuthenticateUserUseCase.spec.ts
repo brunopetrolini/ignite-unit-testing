@@ -5,6 +5,7 @@ import { AuthenticateUserUseCase } from "./AuthenticateUserUseCase"
 import authConfig from '../../../../config/auth';
 import { CreateUserUseCase } from "../createUser/CreateUserUseCase";
 import { User } from "../../entities/User";
+import { IncorrectEmailOrPasswordError } from "./IncorrectEmailOrPasswordError";
 import { AppError } from "../../../../shared/errors/AppError";
 
 describe("Authenticate User Use Case", () => {
@@ -14,9 +15,9 @@ describe("Authenticate User Use Case", () => {
   }
 
   const userData: ICreateUserDTO = {
-    name: "Test Admin",
-    email: "admin@test.com",
-    password: "test123"
+    name: "Admin",
+    email: "admin@finapi.com",
+    password: "master"
   }
 
   let usersRepository: InMemoryUsersRepository;
@@ -58,14 +59,14 @@ describe("Authenticate User Use Case", () => {
       password: userData.password
     });
 
-    expect( async () => await authenticateUserUseCase.execute({
+    await expect( async () => await authenticateUserUseCase.execute({
       email: userData.email,
-      password: userData.password + "-incorrect"
-    })).rejects.toBeInstanceOf(AppError);
+      password: userData.password + "any_password"
+    })).rejects.toBeInstanceOf(IncorrectEmailOrPasswordError);
   });
 
-  it("should not be able to init a session if user not exists", () => {
-    expect( async () => await authenticateUserUseCase.execute({
+  it("should not be able to init a session if user not exists", async () => {
+    await expect( async () => await authenticateUserUseCase.execute({
       email: userData.email,
       password: userData.password
     })).rejects.toBeInstanceOf(AppError);

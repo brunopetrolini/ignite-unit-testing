@@ -60,8 +60,8 @@ describe("Create Statement", () => {
     expect(statement.description).toEqual(statementData.description);
   });
 
-  it("Should not be able to create a statement if user not exists", () => {
-    expect(async () => {
+  it("Should not be able to create a statement if user not exists", async () => {
+    await expect(async () => {
       await createStatementUseCase.execute(statementData);
     }).rejects.toBeInstanceOf(CreateStatementError.UserNotFound);
   });
@@ -69,7 +69,7 @@ describe("Create Statement", () => {
   it("Should not be able to create a statement with insufficient funds", async () => {
     const user = await createUserUserCase.execute(userData);
 
-    expect(async () => await createStatementUseCase.execute({
+    await expect(async () => await createStatementUseCase.execute({
       ...statementData,
       user_id: `${user.id}`,
       amount: 500

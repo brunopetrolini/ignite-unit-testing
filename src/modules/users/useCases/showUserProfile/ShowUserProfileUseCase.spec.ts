@@ -1,3 +1,4 @@
+import { AppError } from "../../../../shared/errors/AppError";
 import { InMemoryUsersRepository } from "../../repositories/in-memory/InMemoryUsersRepository"
 import { CreateUserUseCase } from "../createUser/CreateUserUseCase"
 import { ICreateUserDTO } from "../createUser/ICreateUserDTO"
@@ -30,5 +31,10 @@ describe("Show User Profile Use Case", () => {
     expect(response.name).toEqual(userData.name);
     expect(response.email).toEqual(userData.email);
     expect(response.password).not.toEqual(userData.password);
+  });
+
+  it("Should not be able to get user information if it id is invalid", async () => {
+    await expect( async () => await showUserProfileUseCase.execute(""))
+      .rejects.toBeInstanceOf(AppError);
   });
 });

@@ -127,8 +127,8 @@ describe("Get Balance", () => {
   });
 
 
-  it("Should no be able to get balance if it user not exists", () => {
-    expect(async () =>
+  it("Should no be able to get balance if it user not exists", async () => {
+    await expect(async () =>
       await getBalanceUseCase.execute({user_id: "not exists"})
     ).rejects.toBeInstanceOf(GetBalanceError)
   })

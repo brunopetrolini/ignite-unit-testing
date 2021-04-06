@@ -73,7 +73,7 @@ describe("Get Statement Operation Use Case", () => {
       user_id: `${user.id}`
     });
 
-    expect( async () => await getStatementOperationUseCase.execute({
+    await expect( async () => await getStatementOperationUseCase.execute({
       user_id: `${user.id}-invalid`,
       statement_id: `${statement.id}`
     })).rejects.toBeInstanceOf(GetStatementOperationError.UserNotFound);
@@ -87,7 +87,7 @@ describe("Get Statement Operation Use Case", () => {
       user_id: `${user.id}`
     });
 
-    expect( async () => await getStatementOperationUseCase.execute({
+    await expect( async () => await getStatementOperationUseCase.execute({
       user_id: `${user.id}`,
       statement_id: `${statement.id}-invalid`
     })).rejects.toBeInstanceOf(GetStatementOperationError.StatementNotFound);
