@@ -30,7 +30,7 @@ export class CreateTransferUseCase {
       .getUserBalance({user_id: `${id}`});
 
     if(senderStatement.balance < amount){
-      throw new AppError("insufficient funds");
+      throw new AppError("Insufficient funds");
     }
 
     const transfer = await this.transfersRepository.create({
