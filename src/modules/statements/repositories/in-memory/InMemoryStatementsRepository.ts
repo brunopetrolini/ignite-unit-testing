@@ -3,9 +3,29 @@ import { ICreateStatementDTO } from "../../dtos/ICreateStatementDTO";
 import { IGetBalanceDTO } from "../../dtos/IGetBalanceDTO";
 import { IGetStatementOperationDTO } from "../../dtos/IGetStatementOperationDTO";
 import { IStatementsRepository } from "../IStatementsRepository";
+import { User } from "../../../users/entities/User";
+import { Transfer } from "../../entities/Transfer";
+import { InMemoryTransfersRepository } from "./InMemoryTransferRepository";
+
+interface IStatementDTO {
+  id?: string;
+  user_id: string;
+  user: User;
+  description: string;
+  amount: number;
+  transfer_id?: string;
+  transfer: Transfer | undefined;
+  type: any;
+  created_at: Date;
+  updated_at: Date;
+}
 
 export class InMemoryStatementsRepository implements IStatementsRepository {
   private statements: Statement[] = [];
+
+  constructor(
+    private transfersRepository: InMemoryTransfersRepository,
+  ){}
 
   async create(data: ICreateStatementDTO): Promise<Statement> {
     const statement = new Statement();
@@ -24,12 +44,10 @@ export class InMemoryStatementsRepository implements IStatementsRepository {
     ));
   }
 
-  async getUserBalance({ user_id, with_statement = false }: IGetBalanceDTO):
-    Promise<
-      { balance: number } | { balance: number, statement: Statement[] }
-    >
+  async getUserBalance({ user_id }: IGetBalanceDTO):
+    Promise<{ balance: number, statement: IStatementDTO[] }>
   {
-    const statement = this.statements.filter(operation => operation.user_id === user_id);
+    const statement = this.statements.filter(operation => operation.user_id === user_id) as IStatementDTO[];
 
     const balance = statement.reduce((acc, operation) => {
       if (operation.type === 'deposit') {
@@ -37,15 +55,17 @@ export class InMemoryStatementsRepository implements IStatementsRepository {
       } else {
         return acc - operation.amount;
       }
-    }, 0)
+    }, 0);
 
-    if (with_statement) {
-      return {
-        statement,
-        balance
-      }
+    const transfers = await this.transfersRepository.getTransfers();
+    const statements = statement.map(statement => {
+      statement.transfer = transfers.find(transfer => transfer.transfer_id === statement.transfer_id);
+      return statement;
+    });
+
+    return {
+      statement: statements,
+      balance
     }
-
-    return { balance }
   }
 }
